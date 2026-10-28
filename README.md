@@ -1,4 +1,6 @@
-﻿# YottaFlex AI — Data Engineering Batch Pipeline
+# Customer Orders Data Engineering Pipeline
+
+Individual candidate project for the YottaFlex AI Data Engineering recruitment challenge.
 
 ## 1. Overview
 
