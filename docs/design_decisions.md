@@ -1,4 +1,4 @@
-﻿# Design Decisions and Trade-offs
+# Design Decisions and Trade-offs
 
 ## Technology choices
 
@@ -30,11 +30,20 @@ records.
 ## Publication and reruns
 
 The four database data tables are replaced inside a transaction.
-A successful run adds a separate pipeline_runs record.
-A publication exception triggers rollback.
+Successful executions are recorded in pipeline_runs with their row
+counts and elapsed time.
 
-The idempotency test verifies that repeated identical publication
-does not duplicate data in the snapshot tables.
+If database publication fails, the publication transaction is rolled
+back. The pipeline then attempts to record the failed run, including
+its failure reason, using a separate connection. If the database itself
+is unavailable, recording the failure may also be impossible.
+
+Automated tests verify repeated publication, rollback, preservation of
+the previous successful snapshot, and failed-run auditing.
+
+The filesystem CSV outputs and database publication are not one atomic
+transaction. A failure between these operations can leave the outputs
+out of sync. Coordinated recovery remains an improvement for production use.
 
 ## Storage trade-offs
 

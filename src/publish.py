@@ -10,7 +10,6 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 DB_PATH = ROOT / "outputs" / "yottaflex.duckdb"
 
-
 CUSTOMER_COLUMNS = [
     "customer_id",
     "customer_name",
@@ -39,7 +38,7 @@ ORDER_REJECT_COLUMNS = ORDER_COLUMNS + [
 
 
 def create_tables(con):
-    """Create the database tables if they do not already exist."""
+    """Create database tables and migrate older run-history schemas."""
 
     con.execute("""
         CREATE TABLE IF NOT EXISTS customers (
@@ -95,16 +94,32 @@ def create_tables(con):
             orders_input BIGINT,
             orders_accepted BIGINT,
             orders_rejected BIGINT,
-            elapsed_seconds DOUBLE
+            elapsed_seconds DOUBLE,
+            failure_reason VARCHAR
         )
     """)
 
+    # Add failure_reason to databases created by older versions.
+    columns = {
+        row[1]
+        for row in con.execute(
+            "PRAGMA table_info('pipeline_runs')"
+        ).fetchall()
+    }
+
+    if "failure_reason" not in columns:
+        con.execute("""
+            ALTER TABLE pipeline_runs
+            ADD COLUMN failure_reason VARCHAR
+        """)
+
 
 def insert_frame(con, name, frame, sql):
-    """Register a DataFrame and insert its rows.
+    """
+    Register a DataFrame and execute its insert statement.
 
-    If insertion fails, leave cleanup to the transaction
-    rollback and connection close.
+    If execution fails, let the caller roll back and close the
+    connection. Avoid issuing cleanup SQL during an aborted transaction.
     """
 
     con.register(name, frame)
@@ -112,11 +127,74 @@ def insert_frame(con, name, frame, sql):
     try:
         con.execute(sql)
     except Exception:
-        # The transaction may be aborted.
-        # Do not run more SQL cleanup commands here.
         raise
     else:
         con.unregister(name)
+
+
+def record_failed_run(
+    run_id,
+    started_at,
+    started_clock,
+    failure_reason,
+    customer_input_count=0,
+    customer_accepted_count=0,
+    customer_rejected_count=0,
+    order_input_count=0,
+    order_accepted_count=0,
+    order_rejected_count=0,
+):
+    """Persist a failed run using a separate database connection."""
+
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    con = duckdb.connect(str(DB_PATH))
+
+    try:
+        create_tables(con)
+
+        finished_at = datetime.now(timezone.utc)
+        elapsed_seconds = round(
+            perf_counter() - started_clock,
+            4,
+        )
+
+        con.execute(
+            """
+            INSERT INTO pipeline_runs (
+                run_id,
+                started_at,
+                finished_at,
+                status,
+                customers_input,
+                customers_accepted,
+                customers_rejected,
+                orders_input,
+                orders_accepted,
+                orders_rejected,
+                elapsed_seconds,
+                failure_reason
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                run_id,
+                started_at,
+                finished_at,
+                "failed",
+                customer_input_count,
+                customer_accepted_count,
+                customer_rejected_count,
+                order_input_count,
+                order_accepted_count,
+                order_rejected_count,
+                elapsed_seconds,
+                failure_reason[:4000],
+            ],
+        )
+
+    finally:
+        con.close()
 
 
 def publish_to_duckdb(
@@ -129,7 +207,7 @@ def publish_to_duckdb(
     started_at,
     started_clock,
 ):
-    """Publish a complete snapshot and run metrics transactionally."""
+    """Publish a complete snapshot transactionally and record run status."""
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -172,8 +250,15 @@ def publish_to_duckdb(
             "incoming_customers",
             customers_df,
             """
-            INSERT INTO customers
-            SELECT customer_id, customer_name, email
+            INSERT INTO customers (
+                customer_id,
+                customer_name,
+                email
+            )
+            SELECT
+                customer_id,
+                customer_name,
+                email
             FROM incoming_customers
             """,
         )
@@ -183,7 +268,13 @@ def publish_to_duckdb(
             "incoming_orders",
             orders_df,
             """
-            INSERT INTO orders
+            INSERT INTO orders (
+                order_id,
+                customer_id,
+                order_date,
+                amount,
+                status
+            )
             SELECT
                 order_id,
                 customer_id,
@@ -199,7 +290,14 @@ def publish_to_duckdb(
             "incoming_rejected_customers",
             rejected_customers_df,
             """
-            INSERT INTO rejected_customers
+            INSERT INTO rejected_customers (
+                customer_id,
+                customer_name,
+                email,
+                source_file,
+                source_row,
+                rejection_reason
+            )
             SELECT
                 customer_id,
                 customer_name,
@@ -216,7 +314,16 @@ def publish_to_duckdb(
             "incoming_rejected_orders",
             rejected_orders_df,
             """
-            INSERT INTO rejected_orders
+            INSERT INTO rejected_orders (
+                order_id,
+                customer_id,
+                order_date,
+                amount,
+                status,
+                source_file,
+                source_row,
+                rejection_reason
+            )
             SELECT
                 order_id,
                 customer_id,
@@ -231,6 +338,7 @@ def publish_to_duckdb(
         )
 
         finished_at = datetime.now(timezone.utc)
+
         elapsed_seconds = round(
             perf_counter() - started_clock,
             4,
@@ -242,11 +350,24 @@ def publish_to_duckdb(
             else "success"
         )
 
+        # Supply one value for every SQL placeholder.
         con.execute(
             """
-            INSERT INTO pipeline_runs VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            INSERT INTO pipeline_runs (
+                run_id,
+                started_at,
+                finished_at,
+                status,
+                customers_input,
+                customers_accepted,
+                customers_rejected,
+                orders_input,
+                orders_accepted,
+                orders_rejected,
+                elapsed_seconds,
+                failure_reason
             )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 run_id,
@@ -260,31 +381,70 @@ def publish_to_duckdb(
                 len(valid_orders),
                 len(rejected_orders),
                 elapsed_seconds,
+                None,
             ],
         )
 
-        # Commit the complete data snapshot and its run record.
         con.execute("COMMIT")
 
-        print("\nDATABASE PUBLISHING")
-        print(f"Database: {DB_PATH}")
-        print(f"Run ID: {run_id}")
-        print(f"Status: {status}")
-        print(f"Processing seconds: {elapsed_seconds}")
-
-        return {
+        run_info = {
             "run_id": run_id,
             "status": status,
             "elapsed_seconds": elapsed_seconds,
         }
 
-    except Exception:
+    except Exception as exc:
+        # Roll back the data replacement before recording the failure.
         try:
             con.execute("ROLLBACK")
         except Exception:
             pass
 
+        # Close the failed transaction's connection before opening
+        # a separate connection for the failure audit.
+        try:
+            con.close()
+        finally:
+            con = None
+
+        failure_reason = (
+            f"{type(exc).__name__}: {exc}"
+        )
+
+        try:
+            record_failed_run(
+                run_id=run_id,
+                started_at=started_at,
+                started_clock=started_clock,
+                failure_reason=failure_reason,
+                customer_input_count=customer_input_count,
+                customer_accepted_count=len(valid_customers),
+                customer_rejected_count=len(rejected_customers),
+                order_input_count=order_input_count,
+                order_accepted_count=len(valid_orders),
+                order_rejected_count=len(rejected_orders),
+            )
+        except Exception as audit_exc:
+            # Preserve the original publication exception even if
+            # the separate failure audit cannot be written.
+            print(
+                "WARNING: Could not record failed pipeline run: "
+                f"{audit_exc}"
+            )
+
         raise
 
     finally:
-        con.close()
+        if con is not None:
+            con.close()
+
+    print("\nDATABASE PUBLISHING")
+    print(f"Database: {DB_PATH}")
+    print(f"Run ID: {run_info['run_id']}")
+    print(f"Status: {run_info['status']}")
+    print(
+        f"Processing seconds: "
+        f"{run_info['elapsed_seconds']}"
+    )
+
+    return run_info

@@ -1,8 +1,8 @@
 {
-  "report_generated_at_utc": "2026-10-28T05:52:28.191417+00:00",
-  "run_id": "420b1642-6d57-4d6e-94f3-1efb2799f12d",
+  "report_generated_at_utc": "2026-10-28T07:57:50.523674+00:00",
+  "run_id": "92ccd74f-808e-4a47-97e2-cc1637b6628a",
   "pipeline_status": "success_with_rejects",
-  "elapsed_seconds": 0.1156,
+  "elapsed_seconds": 0.2194,
   "entities": {
     "customers": {
       "input": 5,

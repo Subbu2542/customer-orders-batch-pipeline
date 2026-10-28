@@ -169,10 +169,28 @@ def test_failed_publication_preserves_previous_snapshot(
             "SELECT order_id FROM orders"
         ).fetchall() == [("O001",)]
 
-        # Only the original successful run should be recorded.
+        # The successful run and failed attempt should both be recorded.
         assert con.execute(
             "SELECT COUNT(*) FROM pipeline_runs"
+        ).fetchone()[0] == 2
+
+        assert con.execute(
+            "SELECT COUNT(*) FROM pipeline_runs WHERE status = 'success_with_rejects'"
         ).fetchone()[0] == 1
 
+        assert con.execute(
+            "SELECT COUNT(*) FROM pipeline_runs WHERE status = 'failed'"
+        ).fetchone()[0] == 1
+
+        failed_run = con.execute(
+            """
+            SELECT failure_reason
+            FROM pipeline_runs
+            WHERE status = 'failed'
+            """
+        ).fetchone()
+
+        assert failed_run is not None
+        assert "not-a-date" in failed_run[0]
     finally:
         con.close()

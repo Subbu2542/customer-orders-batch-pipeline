@@ -161,8 +161,7 @@ to prevent file outputs and database contents diverging on failure.
 - The initial implementation uses row-oriented validation, which can
   be slow at larger scale.
 - The benchmark excludes database publication and file output time.
-- Run history currently records successful database publications;
-  comprehensive failed-run auditing remains future work.
+- Database publication failures are recorded in pipeline_runs after rollback when the database remains accessible. Failures during initial ingestion or schema validation are not currently recorded in the run-history table.
 - The pipeline is a local batch process, not a distributed service.
 - Production deployment would require stronger recovery orchestration,
   alerting, schema-evolution policies, access control, and monitoring.

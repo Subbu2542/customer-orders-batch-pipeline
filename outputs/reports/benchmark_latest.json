@@ -1,11 +1,12 @@
 {
-  "generated_at_utc": "2026-10-28T07:10:21.545257+00:00",
+  "generated_at_utc": "2026-10-28T07:47:10.726501+00:00",
   "customers_file": "C:\\Users\\subbu\\Documents\\yottaflex-data-pipeline\\data\\generated\\customers.csv",
   "orders_file": "C:\\Users\\subbu\\Documents\\yottaflex-data-pipeline\\data\\generated\\orders.csv",
   "repeats": 3,
-  "methodology": "One warm-up iteration is excluded. Timings include CSV loading and row-level validation, but exclude DuckDB publishing and output CSV writing.",
-  "median_runtime_seconds": 61.6726,
-  "median_rows_per_second": 1945.76,
+  "warmup_iterations": 1,
+  "methodology": "Exactly one warm-up iteration is excluded. Measured timings include CSV loading and row-level validation, but exclude DuckDB publishing and output CSV writing.",
+  "median_runtime_seconds": 60.2852,
+  "median_rows_per_second": 1990.54,
   "iterations": [
     {
       "customers": {
@@ -13,19 +14,19 @@
         "accepted": 19807,
         "rejected": 193,
         "reconciled": true,
-        "validation_seconds": 1.6047
+        "validation_seconds": 1.5016
       },
       "orders": {
         "input": 100000,
         "accepted": 97987,
         "rejected": 2013,
         "reconciled": true,
-        "validation_seconds": 59.7686
+        "validation_seconds": 58.4865
       },
-      "load_seconds": 0.2966,
+      "load_seconds": 0.2944,
       "total_input_rows": 120000,
-      "total_seconds": 61.6726,
-      "rows_per_second": 1945.76,
+      "total_seconds": 60.2852,
+      "rows_per_second": 1990.54,
       "overall_reconciled": true
     },
     {
@@ -34,19 +35,19 @@
         "accepted": 19807,
         "rejected": 193,
         "reconciled": true,
-        "validation_seconds": 1.4841
+        "validation_seconds": 1.4651
       },
       "orders": {
         "input": 100000,
         "accepted": 97987,
         "rejected": 2013,
         "reconciled": true,
-        "validation_seconds": 60.3807
+        "validation_seconds": 58.3506
       },
-      "load_seconds": 0.312,
+      "load_seconds": 0.3168,
       "total_input_rows": 120000,
-      "total_seconds": 62.1801,
-      "rows_per_second": 1929.88,
+      "total_seconds": 60.1369,
+      "rows_per_second": 1995.45,
       "overall_reconciled": true
     },
     {
@@ -55,19 +56,19 @@
         "accepted": 19807,
         "rejected": 193,
         "reconciled": true,
-        "validation_seconds": 1.4779
+        "validation_seconds": 1.4382
       },
       "orders": {
         "input": 100000,
         "accepted": 97987,
         "rejected": 2013,
         "reconciled": true,
-        "validation_seconds": 58.5385
+        "validation_seconds": 59.517
       },
-      "load_seconds": 0.312,
+      "load_seconds": 0.3372,
       "total_input_rows": 120000,
-      "total_seconds": 60.3316,
-      "rows_per_second": 1989.01,
+      "total_seconds": 61.2957,
+      "rows_per_second": 1957.72,
       "overall_reconciled": true
     }
   ],

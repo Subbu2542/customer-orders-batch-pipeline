@@ -54,10 +54,10 @@ Dataset:
 - Total: 120,000 rows
 
 Latest measured benchmark:
-- One warm-up iteration: 61.3608 seconds, excluded from results
-- Measured runtimes: 61.6726, 62.1801, and 60.3316 seconds
-- Median runtime: 61.6726 seconds
-- Median throughput: 1,945.76 rows/second
+- One warm-up iteration: 60.6771 seconds, excluded from results
+- Measured runtimes: 60.2852, 60.1369, and 61.2957 seconds
+- Median runtime: 60.2852 seconds
+- Median throughput: 1,990.54 rows/second
 - All three measured runs reconciled successfully
 
 Customer results:
@@ -71,7 +71,7 @@ Order results:
 - Rejected: 2,013
 
 Methodology:
-- One warm-up iteration is excluded.
+- Exactly one warm-up iteration is excluded.
 - Timings include CSV loading and row-level validation.
 - DuckDB publishing and output CSV writing are excluded.
 - Runtime depends on hardware, system load, caching, and dataset
