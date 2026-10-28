@@ -56,7 +56,7 @@ so this implementation is not yet a distributed production service.
 - Validation is row-oriented and can be slow for large datasets.
 - The benchmark currently measures CSV loading and validation,
   not end-to-end database publication.
-- Run history records successful database publications only.
+- Failed database publication attempts are recorded when the database remains accessible; ingestion and schema-validation failures are not currently recorded in run history.
 - File outputs and database publication are not one atomic transaction.
   A failure between writing CSV files and committing the database
   can leave files and database contents out of sync.
