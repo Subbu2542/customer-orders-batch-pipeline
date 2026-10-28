@@ -128,12 +128,14 @@ def main():
         if not path.is_file():
             parser.error(f"Input file does not exist: {path}")
 
-        print("Warm-up iteration (excluded from results)...")
-        warmup = run_benchmark(args.customers, args.orders)
+    # Run exactly one warm-up, outside the file-validation loop.
+    print("Warm-up iteration (excluded from results)...")
+    warmup = run_benchmark(args.customers, args.orders)
 
-        print(
+    print(
         f"Warm-up complete: {warmup['total_seconds']:.4f}s"
-)
+    )
+
     results = []
 
     for iteration in range(1, args.repeats + 1):

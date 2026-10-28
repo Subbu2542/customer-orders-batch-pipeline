@@ -1,4 +1,4 @@
-﻿# Testing Results
+# Testing Results
 
 ## Automated test suite
 
@@ -53,16 +53,30 @@ Dataset:
 - Orders: 100,000 rows
 - Total: 120,000 rows
 
-One observed three-iteration benchmark reported:
-- Median runtime: 73.7273 seconds
-- Median throughput: 1,627.62 rows/second
-- All three iterations reconciled successfully
+Latest measured benchmark:
+- One warm-up iteration: 61.3608 seconds, excluded from results
+- Measured runtimes: 61.6726, 62.1801, and 60.3316 seconds
+- Median runtime: 61.6726 seconds
+- Median throughput: 1,945.76 rows/second
+- All three measured runs reconciled successfully
 
-These are machine-specific observations, not guaranteed performance.
-The run also printed two warm-up iterations, so the benchmark should be
-rerun after verifying the final benchmark script and report methodology.
+Customer results:
+- Input: 20,000
+- Accepted: 19,807
+- Rejected: 193
 
-The benchmark excludes DuckDB publication and output CSV writing.
+Order results:
+- Input: 100,000
+- Accepted: 97,987
+- Rejected: 2,013
+
+Methodology:
+- One warm-up iteration is excluded.
+- Timings include CSV loading and row-level validation.
+- DuckDB publishing and output CSV writing are excluded.
+- Runtime depends on hardware, system load, caching, and dataset
+  characteristics. These values are machine-specific observations,
+  not universal performance guarantees.
 
 ## Commands to reproduce
 
