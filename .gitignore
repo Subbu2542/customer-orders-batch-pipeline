@@ -1,0 +1,26 @@
+﻿# Python and virtual environment
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Local database and write-ahead logs
+*.duckdb
+*.duckdb.wal
+*.wal
+
+# Execution logs
+logs/*.log
+
+# Generated benchmark datasets
+data/generated/*.csv
+data/generated/generation_metadata.json
+
+# Timestamped reports; retain latest_run.json and benchmark_latest.json
+outputs/reports/run_*.json
+outputs/reports/benchmark_20*.json

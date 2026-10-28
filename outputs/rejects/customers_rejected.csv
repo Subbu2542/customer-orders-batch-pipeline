@@ -1,0 +1,3 @@
+customer_id,customer_name,email,source_file,source_row,rejection_reason
+C002,Priya Sharma,priya@example.com,customers.csv,5,duplicate_exact_customer_id
+,Missing ID,missing@example.com,customers.csv,6,missing_customer_id

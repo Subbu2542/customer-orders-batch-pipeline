@@ -1,0 +1,24 @@
+{
+  "report_generated_at_utc": "2026-10-28T05:52:28.191417+00:00",
+  "run_id": "420b1642-6d57-4d6e-94f3-1efb2799f12d",
+  "pipeline_status": "success_with_rejects",
+  "elapsed_seconds": 0.1156,
+  "entities": {
+    "customers": {
+      "input": 5,
+      "accepted": 3,
+      "rejected": 2,
+      "reconciled": true
+    },
+    "orders": {
+      "input": 10,
+      "accepted": 3,
+      "rejected": 7,
+      "reconciled": true
+    }
+  },
+  "total_input_rows": 15,
+  "total_accepted_rows": 6,
+  "total_rejected_rows": 9,
+  "overall_reconciled": true
+}

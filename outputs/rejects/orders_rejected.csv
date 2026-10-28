@@ -1,0 +1,8 @@
+order_id,customer_id,order_date,amount,status,source_file,source_row,rejection_reason
+O1003,C999,2026-10-28,400.00,completed,orders.csv,4,unknown_customer_id
+O1004,C001,2026-10-28,-200.00,completed,orders.csv,5,non_positive_amount
+O1002,C002,2026-10-28,800.00,pending,orders.csv,6,duplicate_exact_order_id
+,C001,2026-10-28,75.00,pending,orders.csv,7,missing_order_id
+O1005,C003,not-a-date,200.00,completed,orders.csv,8,invalid_order_date
+O1006,C002,2026-10-27,abc,completed,orders.csv,9,invalid_amount
+O1007,C003,2026-10-27,250.00,unknown,orders.csv,10,invalid_status

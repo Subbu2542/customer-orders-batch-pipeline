@@ -1,0 +1,4 @@
+order_id,customer_id,order_date,amount,status
+O1001,C001,2026-10-27,1500.00,completed
+O1002,C002,2026-10-28,800.00,pending
+O1008,C003,2026-10-27,300.00,completed

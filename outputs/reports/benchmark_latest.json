@@ -1,0 +1,75 @@
+{
+  "generated_at_utc": "2026-10-28T05:31:14.713234+00:00",
+  "customers_file": "C:\\Users\\subbu\\Documents\\yottaflex-data-pipeline\\data\\generated\\customers.csv",
+  "orders_file": "C:\\Users\\subbu\\Documents\\yottaflex-data-pipeline\\data\\generated\\orders.csv",
+  "repeats": 3,
+  "methodology": "One warm-up iteration is excluded. Timings include CSV loading and row-level validation, but exclude DuckDB publishing and output CSV writing.",
+  "median_runtime_seconds": 73.7273,
+  "median_rows_per_second": 1627.62,
+  "iterations": [
+    {
+      "customers": {
+        "input": 20000,
+        "accepted": 19807,
+        "rejected": 193,
+        "reconciled": true,
+        "validation_seconds": 1.5418
+      },
+      "orders": {
+        "input": 100000,
+        "accepted": 97987,
+        "rejected": 2013,
+        "reconciled": true,
+        "validation_seconds": 72.9095
+      },
+      "load_seconds": 0.3668,
+      "total_input_rows": 120000,
+      "total_seconds": 74.8217,
+      "rows_per_second": 1603.81,
+      "overall_reconciled": true
+    },
+    {
+      "customers": {
+        "input": 20000,
+        "accepted": 19807,
+        "rejected": 193,
+        "reconciled": true,
+        "validation_seconds": 1.5482
+      },
+      "orders": {
+        "input": 100000,
+        "accepted": 97987,
+        "rejected": 2013,
+        "reconciled": true,
+        "validation_seconds": 71.819
+      },
+      "load_seconds": 0.3561,
+      "total_input_rows": 120000,
+      "total_seconds": 73.7273,
+      "rows_per_second": 1627.62,
+      "overall_reconciled": true
+    },
+    {
+      "customers": {
+        "input": 20000,
+        "accepted": 19807,
+        "rejected": 193,
+        "reconciled": true,
+        "validation_seconds": 1.4767
+      },
+      "orders": {
+        "input": 100000,
+        "accepted": 97987,
+        "rejected": 2013,
+        "reconciled": true,
+        "validation_seconds": 68.2671
+      },
+      "load_seconds": 0.3435,
+      "total_input_rows": 120000,
+      "total_seconds": 70.0917,
+      "rows_per_second": 1712.04,
+      "overall_reconciled": true
+    }
+  ],
+  "all_runs_reconciled": true
+}
